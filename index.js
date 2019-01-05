@@ -1,10 +1,8 @@
-let app = require('express')();
-let http = require('http').Server(app);
-let io = require('socket.io')(http);
+const app  = require('./server/app');
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
 
 let port = 3000;
-
-app.get('/', (req, res) => res.sendFile(__dirname + '/index.html'));
 
 io.on('connection', (socket) => 
     {
