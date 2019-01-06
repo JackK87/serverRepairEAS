@@ -1,9 +1,9 @@
 const app = require('express')();
 
+const mainController = require('../controllers/main');
+
+app.get('/', mainController.home);
 
 
-
-//app.get('/', (req, res) => res.sendFile(__dirname + './../index.html'));
-app.get('/', (req, res) => res.end(__dirname + './../index.html'));
 
 module.exports = app;
