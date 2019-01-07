@@ -1,52 +1,105 @@
 <!doctype html>
 <html>
-  <head>
+
+<head>
+    <meta charset="utf-8" />
     <title>Socket.IO chat</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font: 13px Helvetica, Arial; }
-      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
-      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
-      #messages { list-style-type: none; margin: 0; padding: 0; }
-      #messages li { padding: 5px 10px; }
-      #messages li:nth-child(odd) { background: #eee; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font: 13px Helvetica, Arial;
+        }
+
+        form {
+
+            padding: 3px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        
+
+      
+
+        #messages {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        #messages li {
+            padding: 5px 10px;
+        }
+
+        #messages li:nth-child(odd) {
+            background: #eee;
+        }
     </style>
-  </head>
-  <body>
-    <ul id="messages"></ul>
-    <form action="">
-      <input id="m" autocomplete="off" /><button>Send</button>
-    </form>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</head>
+
+<body>
+    <main class="container">
+        <div class="row">
+            <aside class="col l3">
+                <ul id="users"></ul>
+            </aside>
+            <section class="col l9">
+                <ul id="messages"></ul>
+            </section>
+        </div>
+
+        <div class="row">
+            <form action="">
+                <div class="row">
+                    <div class="input-field col l8">
+                        <input id="m" type="text" autocomplete="off" />
+                        <label for="m">Сообщение</label>
+                    </div>
+                    <div class="col l3">
+                        <button class="waves-effect waves-light btn-large">Send</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </main>
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
-
-        $(function(){
+        $(function () {
 
             var socket = io();
 
-            $('form').submit(function() {
+            $('form').submit(function () {
                 socket.emit('on_chat_message', $('#m').val());
                 $('#m').val('');
 
                 return false;
             });
 
-            socket.on('on_everyone_message', function(msg){
+            socket.on('on_everyone_message', function (msg) {
                 //$('#messages').append('<li>' + msg.for + '</li>');
                 console.log(msg.for);
             });
 
-            socket.on('connected_user', function(data) {
-                $('#messages').append('<li id=' + data.userId + '>Подключен пользователь ' + data.userId + '</li>');
+            socket.on('connected_user', function (data) {
+                $('#users').append('<li id=' + data.userId + '>Подключен пользователь ' + data.userId +
+                    '</li>');
             });
 
-            socket.on('disconnected_user', function(data) {
+            socket.on('disconnected_user', function (data) {
                 $('#' + data.userId).remove();
             });
         });
-        
     </script>
-  </body>
+</body>
+
 </html>

@@ -9,7 +9,7 @@ module.exports.home = (req, res) => {
             console.log(err);
 
             res.statusCode = 404;
-            res.setHeader('Content-type', 'text/html; charset=utf8');
+            res.setHeader('Content-type', 'text/html; charset=utf-8');
             res.end('<h1>Страница не найдена.</h1>');
         } else {
 
