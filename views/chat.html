@@ -4,55 +4,28 @@
 <head>
     <meta charset="utf-8" />
     <title>Socket.IO chat</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font: 13px Helvetica, Arial;
-        }
-
-        form {
-
-            padding: 3px;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-        }
-
-        
-
-      
-
-        #messages {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        #messages li {
-            padding: 5px 10px;
-        }
-
-        #messages li:nth-child(odd) {
-            background: #eee;
+        #users li.collection-item {
+            cursor: pointer;
         }
     </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 </head>
 
 <body>
     <main class="container">
         <div class="row">
             <aside class="col l3">
-                <ul id="users"></ul>
+                <ul id="users" class="collection with-header">
+                    <li class="collection-header">Пользователи</li>
+                </ul>
             </aside>
             <section class="col l9">
                 <ul id="messages"></ul>
+                </ul>
             </section>
         </div>
 
@@ -91,12 +64,22 @@
             });
 
             socket.on('connected_user', function (data) {
-                $('#users').append('<li id=' + data.userId + '>Подключен пользователь ' + data.userId +
-                    '</li>');
+                $('#users').append('<li id=' + data.userId +
+                    ' class="collection-item">Подключен пользователь ' + data.userId + '</li>');
             });
 
             socket.on('disconnected_user', function (data) {
                 $('#' + data.userId).remove();
+            });
+
+            $('#users').on('click', 'li', function (e) {
+                var parent = $(this).parent();
+
+                parent.children('li').each(function (index, element) {
+                    $(element).removeClass('active')
+                });
+
+                $(this).addClass('active');
             });
         });
     </script>

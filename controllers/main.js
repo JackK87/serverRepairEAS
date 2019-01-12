@@ -2,7 +2,11 @@ const fs = require('fs');
 
 module.exports.home = (req, res) => {
     
-    fs.readFile(process.env.views + 'index.html', 'utf8', (err, data) =>{
+    
+};
+
+module.exports.chat = (req, res) => {
+    fs.readFile(process.env.views + 'chat.html', 'utf-8', (err, data) =>{
 
         if (err){
 

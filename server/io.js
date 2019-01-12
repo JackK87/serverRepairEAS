@@ -13,15 +13,22 @@ module.exports = (http) => {
             .catch(err => {
                 console.log(err);
             });
+
+        
         console.log(`пользователь ${socket.id} подключился`);
         socket.broadcast.emit('connected_user', { userId: socket.id });
+        
 
         socket.on('disconnect', () => {
                         socket.broadcast.emit('disconnected_user', { userId: socket.id });
                         console.log(`пользователь ${socket.id} отключился`);
                     });
-
+        
         socket.on('on_chat_message', (data) => { socketController.onChatMessage(socket, data); });
+
+        for (var socketId in io.sockets.sockets) {
+            console.log(socketId);
+        }
     });
 
     
