@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <title>Socket.IO chat</title>
-    
+
     <style>
         #users li.collection-item {
             cursor: pointer;
@@ -24,8 +24,7 @@
                 </ul>
             </aside>
             <section class="col l9">
-                <ul id="messages"></ul>
-                </ul>
+                <ul id="messages" class="collection with-header"></ul>
             </section>
         </div>
 
@@ -37,7 +36,7 @@
                         <label for="m">Сообщение</label>
                     </div>
                     <div class="col l3">
-                        <button class="waves-effect waves-light btn-large">Send</button>
+                        <button id="send-mes" class="waves-effect waves-light btn-large">Send</button>
                     </div>
                 </div>
             </form>
@@ -52,20 +51,35 @@
             var socket = io();
 
             $('form').submit(function () {
-                socket.emit('on_chat_message', $('#m').val());
+
+                var to = $('#users li.active').attr('id');
+                var text = $('#m').val();
+
+                var message = {};
+                message.to = to;
+                message.text = text;
+
+                socket.emit('on_chat_message', message);
                 $('#m').val('');
 
                 return false;
             });
 
             socket.on('on_everyone_message', function (msg) {
-                //$('#messages').append('<li>' + msg.for + '</li>');
-                console.log(msg.for);
+                $('#messages').append('<li class="collection-item">' + msg + '</li>');
             });
 
             socket.on('connected_user', function (data) {
                 $('#users').append('<li id=' + data.userId +
-                    ' class="collection-item">Подключен пользователь ' + data.userId + '</li>');
+                    ' class="collection-item">' + data.userId + '</li>');
+            });
+
+            socket.on('connect_users', function (data) {
+                $('#users li.collection-item').remove();
+                data.forEach(function (item, number, data) {
+                    $('#users').append('<li id=' + item +
+                        ' class="collection-item">' + item + '</li>');
+                });
             });
 
             socket.on('disconnected_user', function (data) {
@@ -81,6 +95,7 @@
 
                 $(this).addClass('active');
             });
+
         });
     </script>
 </body>
