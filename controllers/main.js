@@ -1,8 +1,7 @@
 const fs = require('fs');
 
 module.exports.home = (req, res) => {
-    
-    
+
 };
 
 module.exports.chat = (req, res) => {

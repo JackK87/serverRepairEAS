@@ -1,26 +1,52 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+var crypto = require('crypto');
 
-const model = new Schema({
-    name: {
-        type: String,    
-        required: true,
-        unique: true
+var mongoose = require('../server/mongoose'),
+    Schema = mongoose.Schema;
+
+var schema = new Schema({
+    username: {
+        type: String,
+        unique: true,
+        required: true
     },
-    password: {
+    hashedPassword: {
+        type: String,
+        required: true
+    },
+    salt: {
         type: String,
         required: true
     },
     isAdmin: {
         type: Boolean,
-        required: true,
         default: false
     },
     isActive: {
         type: Boolean,
-        required: true,
         default: false
+    },
+    created: {
+        type: Date,
+        default: Date.now
     }
 });
 
-exports = mongoose.model('User', model);
+schema.methods.encryptPassword = (password, salt) => {
+    return crypto.createHmac('sha1', salt).update(password).digest('hex');
+};
+
+schema.virtual('password')
+    .set(function (password) {
+        this._plainPassword = password;
+        this.salt = Math.random() + '';
+        this.hashedPassword = this.encryptPassword(password, this.salt);
+    })
+    .get(function () {
+        return this._plainPassword;
+    });
+
+schema.methods.checkPassword = (password) => {
+    return this.encryptPassword(password, this.salt) === this.hashedPassword;
+};
+
+exports.User = mongoose.model('User', schema);

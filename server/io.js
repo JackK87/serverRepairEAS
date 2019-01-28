@@ -1,39 +1,51 @@
 module.exports = (http) => {
 
     const io = require('socket.io')(http);
-    const mongoose = require('mongoose');
     const socketController = require('../controllers/socket');
 
-    io.on('connection', (socket) => 
-    {
-        mongoose.connect('mongodb://localhost:27017/repairdb', { useNewUrlParser: true, useCreateIndex: true })
-            .then(() => {
-                console.log('Сединение с БД установлено.');
-            })
-            .catch(err => {
-                console.log(err);
-            });
+    io.on('connection', (socket) => {
         
         console.log(`пользователь ${socket.id} подключился`);
 
-        let usersConnected = [];
+        /***
+         * авторизация пользователей (посредник запросов)
+        */
+        socket.use((paket, next) => {
+            
+            let user = null;
+            console.log(paket);
 
-        for (const userId in io.sockets.sockets) {
-            if (socket.id != userId)
-                usersConnected.push(userId);
-        }
+            paket.forEach((value, index, paket) => {
+                console.log(value);
+                if (typeof value == 'object' && value.hasOwnProperty('user')) {
+                    user = value.user;
+                    console.log(user);
+                }
+            });
 
-        socket.emit('connect_users', usersConnected);
+            console.log('проверка пользователя...');
 
-        socket.broadcast.emit('connected_user', { userId: socket.id });        
+            if (user && typeof user == 'object' && user.hasOwnProperty('name') && user.hasOwnProperty('pwd')) {
+                socketController.autorize(user.name, user.pwd, next);
+            }
+            else {
+                console.log(`ошибка разбора запроса ${user}`);
+                next(new Error('Ошибка авторизации'));
+            }
+        });
 
-        socket.on('disconnect', () => {
-                        socket.broadcast.emit('disconnected_user', { userId: socket.id });
-                        console.log(`пользователь ${socket.id} отключился`);
-                    });
-        
-        socket.on('on_chat_message', (data) => { socketController.onChatMessage(io, socket, data); });
+        //***************************Отправка сообщении пользователям*************************************/
+
+        //отправка подключенному клиенту всех пользователей на сервере
+        socket.emit('connect_users', socketController.sendConnectUsers(socket.id, io.sockets.sockets));
+        //отправка всем клиентам поключенного пользователя
+        socket.broadcast.emit('connected_user', socketController.sendConnectedUser(socket.id));
+
+        //***************************Получение сообщении от пользователей*************************************/
+
+        //отключение пользователя
+        socket.on('disconnect', () => { socketController.disconnectUser(socket); });
+        //отправка сообщения от одного пользователя другому
+        socket.on('on_chat_message', (data) => { socketController.sendMessage(socket, data); });
     });
-
-    
-}
+};

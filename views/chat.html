@@ -55,11 +55,17 @@
                 var to = $('#users li.active').attr('id');
                 var text = $('#m').val();
 
-                var message = {};
-                message.to = to;
-                message.text = text;
+                var paket = {};
+                paket.message = {};
+                paket.user = {};
 
-                socket.emit('on_chat_message', message);
+                paket.message.to = to;
+                paket.message.text = text;
+
+                paket.user.name = 'super_admin';
+                paket.user.pwd = 'super_secret';
+
+                socket.emit('on_chat_message', paket);
                 $('#m').val('');
 
                 return false;
@@ -84,6 +90,10 @@
 
             socket.on('disconnected_user', function (data) {
                 $('#' + data.userId).remove();
+            });
+
+            socket.on('error', function(msg) {
+                alert(msg);
             });
 
             $('#users').on('click', 'li', function (e) {
